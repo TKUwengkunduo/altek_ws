@@ -1,0 +1,2 @@
+Altek_ROS/realsense2_camera:Altek_ROS/realsense2_description
+-DCATKIN_DEVEL_PREFIX=/home/weng/work/Altek/devel -DCMAKE_INSTALL_PREFIX=/home/weng/work/Altek/install -G Unix Makefiles
