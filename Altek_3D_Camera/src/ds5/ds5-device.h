@@ -56,7 +56,6 @@ namespace librealsense
 
         void hardware_reset() override;
 
-	    uint32_t get_al3d_error() override;
         void create_snapshot(std::shared_ptr<debug_interface>& snapshot) const override;
         void enable_recording(std::function<void(const debug_interface&)> record_action) override;
         platform::usb_spec get_usb_spec() const;
@@ -91,7 +90,6 @@ namespace librealsense
 
         firmware_version            _fw_version;
         firmware_version            _recommended_fw_version;
-        firmware_version            _al3d_fw_version;  //for al3d fw version
         ds::d400_caps               _device_capabilities;
 
         std::shared_ptr<stream_interface> _depth_stream;

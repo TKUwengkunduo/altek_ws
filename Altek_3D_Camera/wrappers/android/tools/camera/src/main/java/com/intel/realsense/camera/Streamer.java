@@ -70,14 +70,12 @@ public class Streamer {
             if (devices.getDeviceCount() == 0) {
                 return DEFAULT_TIMEOUT;
             }
-            //randy test
-//            try (Device device = devices.createDevice(0)) {
-//                if(device == null)
-//                    return DEFAULT_TIMEOUT;
-//                ProductLine pl = ProductLine.valueOf(device.getInfo(CameraInfo.PRODUCT_LINE));
- //               return pl == ProductLine.L500 ? L500_TIMEOUT : DEFAULT_TIMEOUT;
- //           }
+            try (Device device = devices.createDevice(0)) {
+                if(device == null)
                     return DEFAULT_TIMEOUT;
+                ProductLine pl = ProductLine.valueOf(device.getInfo(CameraInfo.PRODUCT_LINE));
+                return pl == ProductLine.L500 ? L500_TIMEOUT : DEFAULT_TIMEOUT;
+            }
         }
     }
 
@@ -141,7 +139,6 @@ public class Streamer {
             Log.d(TAG, "try start streaming");
             configAndStart();
             int firstFrameTimeOut = getFirstFrameTimeout();
-            firstFrameTimeOut = 5000;
             try(FrameSet frames = mPipeline.waitForFrames(firstFrameTimeOut)){} // w/a for l500
             mIsStreaming = true;
             mHandler.post(mStreaming);

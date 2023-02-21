@@ -18,7 +18,6 @@ namespace librealsense
             virtual uint8_t get_address() const = 0;
             virtual endpoint_type get_type() const = 0;
             virtual endpoint_direction get_direction() const = 0;
-            virtual uint16_t get_maxpacketsize() const = 0;
             virtual uint8_t get_interface_number() const = 0;
         };
 

@@ -39,7 +39,6 @@
 #define USB_DT_CS_ENDPOINT (USB_TYPE_CLASS | USB_DT_ENDPOINT)
 
 const uint16_t VID_INTEL_CAMERA = 0x8086;
-const uint16_t VID_ALTEK_CAMERA = 0x143C;
 
 namespace librealsense
 {
@@ -71,10 +70,10 @@ namespace librealsense
 
         typedef enum _endpoint_type
         {
-            RS2_USB_ENDPOINT_CONTROL = 0x00,
-            RS2_USB_ENDPOINT_ISOCHRONOUS = 0x05,
-            RS2_USB_ENDPOINT_BULK = 0x02,
-            RS2_USB_ENDPOINT_INTERRUPT = 0x03
+            RS2_USB_ENDPOINT_CONTROL,
+            RS2_USB_ENDPOINT_ISOCHRONOUS,
+            RS2_USB_ENDPOINT_BULK,
+            RS2_USB_ENDPOINT_INTERRUPT
         } endpoint_type;
 
         //https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/supported-usb-classes#microsoft-provided-usb-device-class-drivers

@@ -1182,14 +1182,6 @@ void rs2_hardware_reset(const rs2_device* device, rs2_error** error) BEGIN_API_C
 }
 HANDLE_EXCEPTIONS_AND_RETURN(, device)
 
-
-uint32_t rs2_get_al3d_error(const rs2_device* device, rs2_error** error) BEGIN_API_CALL
-{
-    VALIDATE_NOT_NULL(device);
-    return device->device->get_al3d_error();
-}
-HANDLE_EXCEPTIONS_AND_RETURN(0, device)
-
 // Verify  and provide API version encoded as integer value
 int rs2_get_api_version(rs2_error** error) BEGIN_API_CALL
 {
@@ -3196,18 +3188,6 @@ const rs2_raw_data_buffer* rs2_get_calibration_table(const rs2_device* device, r
     return new rs2_raw_data_buffer{ buffer };
 }
 HANDLE_EXCEPTIONS_AND_RETURN(nullptr, device)
-
-//al3d
-const rs2_raw_data_buffer* rs2_get_calibration_table_by_id(const rs2_device* device, rs2_error** error, int table_id) BEGIN_API_CALL
-{
-    VALIDATE_NOT_NULL(device);
-
-    auto auto_calib = VALIDATE_INTERFACE(device->device, librealsense::auto_calibrated_interface);
-    auto buffer = auto_calib->get_calibration_table_by_id(table_id);
-    return new rs2_raw_data_buffer{ buffer };
-}
-HANDLE_EXCEPTIONS_AND_RETURN(nullptr, device)
-
 
 void rs2_set_calibration_table(const rs2_device* device, const void* calibration, int calibration_size, rs2_error** error) BEGIN_API_CALL
 {

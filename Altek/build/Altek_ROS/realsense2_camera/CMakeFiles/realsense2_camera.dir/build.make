@@ -142,7 +142,7 @@ realsense2_camera_EXTERNAL_OBJECTS =
 /home/weng/work/Altek/devel/lib/librealsense2_camera.so: Altek_ROS/realsense2_camera/CMakeFiles/realsense2_camera.dir/src/base_realsense_node.cpp.o
 /home/weng/work/Altek/devel/lib/librealsense2_camera.so: Altek_ROS/realsense2_camera/CMakeFiles/realsense2_camera.dir/src/t265_realsense_node.cpp.o
 /home/weng/work/Altek/devel/lib/librealsense2_camera.so: Altek_ROS/realsense2_camera/CMakeFiles/realsense2_camera.dir/build.make
-/home/weng/work/Altek/devel/lib/librealsense2_camera.so: /usr/lib/x86_64-linux-gnu/librealsense2.so.2.53.1
+/home/weng/work/Altek/devel/lib/librealsense2_camera.so: /usr/local/lib/librealsense2.so.2.49.0
 /home/weng/work/Altek/devel/lib/librealsense2_camera.so: /opt/ros/melodic/lib/libnodeletlib.so
 /home/weng/work/Altek/devel/lib/librealsense2_camera.so: /opt/ros/melodic/lib/libbondcpp.so
 /home/weng/work/Altek/devel/lib/librealsense2_camera.so: /usr/lib/x86_64-linux-gnu/libuuid.so

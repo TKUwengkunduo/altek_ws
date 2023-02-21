@@ -18,19 +18,15 @@
 #define _GNU_SOURCE
 #endif
 
- #define DEBUG 1
+// #define DEBUG 1
 #if DEBUG
 
-//#define USE_LIBLOG
-
 #ifdef USE_LIBLOG
-#define LOG_TAG "uvcstream"
-#include "android/log.h"
-//#define DD ALOGD
-#define DD(...) __android_log_print(ANDROID_LOG_DEBUG, "uvcstream", __VA_ARGS__)
+#define LOG_TAG "usbhost"
+#include "log/log.h"
+#define D ALOGD
 #else
-#define DD(...)   {}
-
+#define D printf
 #endif
 
 #else
@@ -204,7 +200,7 @@ int usb_host_load(struct usb_host_context *context,
     context->cb_removed = removed_cb;
     context->data = client_data;
 
-    DD("Created device discovery thread\n");
+    D("Created device discovery thread\n");
 
     /* watch for files added and deleted within USB_FS_DIR */
     context->wddbus = -1;
@@ -270,7 +266,7 @@ int usb_host_read_event(struct usb_host_context *context)
             } else if (wd == context->wds[0]) {
                 i = atoi(event->name);
                 snprintf(path, sizeof(path), USB_FS_DIR "/%s", event->name);
-                DD("%s subdirectory %s: index: %d\n", (event->mask & IN_CREATE) ?
+                D("%s subdirectory %s: index: %d\n", (event->mask & IN_CREATE) ?
                                                      "new" : "gone", path, i);
                 if (i > 0 && i < MAX_USBFS_WD_COUNT) {
                     int local_ret = 0;
@@ -291,10 +287,10 @@ int usb_host_read_event(struct usb_host_context *context)
                     if (wd == context->wds[i]) {
                         snprintf(path, sizeof(path), USB_FS_DIR "/%03d/%s", i, event->name);
                         if (event->mask == IN_CREATE) {
-                            DD("new device %s\n", path);
+                            D("new device %s\n", path);
                             done = context->cb_added(path, context->data);
                         } else if (event->mask == IN_DELETE) {
-                            DD("gone device %s\n", path);
+                            D("gone device %s\n", path);
                             done = context->cb_removed(path, context->data);
                         }
                     }
@@ -329,7 +325,7 @@ struct usb_device *usb_device_open(const char *dev_name)
     int fd, attempts, writeable = 1;
     const int SLEEP_BETWEEN_ATTEMPTS_US = 100000; /* 100 ms */
     const int64_t MAX_ATTEMPTS = 10;              /* 1s */
-    DD("usb_device_open %s\n", dev_name);
+    D("usb_device_open %s\n", dev_name);
 
     /* Hack around waiting for permissions to be set on the USB device node.
      * Should really be a timeout instead of attempt count, and should REALLY
@@ -347,7 +343,7 @@ struct usb_device *usb_device_open(const char *dev_name)
             }
         }
         /* not writeable or readable - sleep and try again. */
-        DD("usb_device_open no access sleeping\n");
+        D("usb_device_open no access sleeping\n");
         usleep(SLEEP_BETWEEN_ATTEMPTS_US);
     }
 
@@ -356,7 +352,7 @@ struct usb_device *usb_device_open(const char *dev_name)
     } else {
         fd = open(dev_name, O_RDONLY);
     }
-    DD("usb_device_open open returned %d writeable %d errno %d\n", fd, writeable, errno);
+    D("usb_device_open open returned %d writeable %d errno %d\n", fd, writeable, errno);
     if (fd < 0) return NULL;
 
     struct usb_device* result = usb_device_new(dev_name, fd);
@@ -376,12 +372,12 @@ struct usb_device *usb_device_new(const char *dev_name, int fd)
     struct usb_device *device = calloc(1, sizeof(struct usb_device));
     int length;
 
-    DD("usb_device_new %s fd: %d\n", dev_name, fd);
+    D("usb_device_new %s fd: %d\n", dev_name, fd);
 
     if (lseek(fd, 0, SEEK_SET) != 0)
         goto failed;
     length = read(fd, device->desc, sizeof(device->desc));
-    DD("usb_device_new read returned %d errno %d\n", length, errno);
+    D("usb_device_new read returned %d errno %d\n", length, errno);
     if (length < 0)
         goto failed;
 
@@ -412,7 +408,7 @@ static int usb_device_reopen_writeable(struct usb_device *device)
         device->writeable = 1;
         return 1;
     }
-    DD("usb_device_reopen_writeable failed errno %d\n", errno);
+    D("usb_device_reopen_writeable failed errno %d\n", errno);
     return 0;
 }
 
@@ -638,9 +634,7 @@ int usb_device_set_interface(struct usb_device *device, unsigned int interface,
 
     ctl.interface = interface;
     ctl.altsetting = alt_setting;
-    int ret = ioctl(device->fd, USBDEVFS_SETINTERFACE, &ctl);
-    DD("usb_device_set_interface %d alt =%d ret= %d \n " ,  ctl.interface , ctl.altsetting  ,  ret);
-    return ret;
+    return ioctl(device->fd, USBDEVFS_SETINTERFACE, &ctl);
 }
 
 int usb_device_control_transfer(struct usb_device *device,
@@ -654,13 +648,9 @@ int usb_device_control_transfer(struct usb_device *device,
 {
     struct usbdevfs_ctrltransfer  ctrl;
 
- //   DD("usb_device_control_transfer initial");
-
     // this usually requires read/write permission
     if (!usb_device_reopen_writeable(device))
         return -1;
-
-  //  DD("usb_device_control_transfer start");
 
     memset(&ctrl, 0, sizeof(ctrl));
     ctrl.bRequestType = requestType;
@@ -670,15 +660,7 @@ int usb_device_control_transfer(struct usb_device *device,
     ctrl.wLength = length;
     ctrl.data = buffer;
     ctrl.timeout = timeout;
-
-    //usleep(SLEEP_BETWEEN_ATTEMPTS_US);
-   // DD("Before ioctl---");
-    //DD("Before ioctl sleep 2S");
-    //sleep(2);
-
-    int ret = ioctl(device->fd, USBDEVFS_CONTROL, &ctrl);
- //   DD("IO USBDEVFS_CONTROL return = 0x%X", ret);
-    return ret;
+    return ioctl(device->fd, USBDEVFS_CONTROL, &ctrl);
 }
 
 int usb_device_bulk_transfer(struct usb_device *device,
@@ -688,8 +670,6 @@ int usb_device_bulk_transfer(struct usb_device *device,
                              unsigned int timeout)
 {
     struct usbdevfs_bulktransfer  ctrl;
-
-    DD("usb_device_bulk_transfer start");
 
     memset(&ctrl, 0, sizeof(ctrl));
     ctrl.ep = endpoint;
@@ -701,47 +681,22 @@ int usb_device_bulk_transfer(struct usb_device *device,
 
 int usb_device_reset(struct usb_device *device)
 {
-    DD("usb_device_reset %s" , device->dev_name);
     return ioctl(device->fd, USBDEVFS_RESET);
 }
 
-const int MAX_ISO_BUFFER_LENGTH	 = 32*4*1024;	//128 x 1024 = 128KB
 struct usb_request *usb_request_new(struct usb_device *dev,
-                                    const struct usb_endpoint_descriptor *ep_desc , const struct  usb_ss_ep_comp_descriptor  *ep_ssdesc)
+                                    const struct usb_endpoint_descriptor *ep_desc)
 {
-    int num_iso_packets = 128;
-    struct usbdevfs_urb *urb ;
-    uint16_t wMaxPacketSize ;
+    struct usbdevfs_urb *urb = calloc(1, sizeof(struct usbdevfs_urb));
+    if (!urb)
+        return NULL;
 
-    if ((ep_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_BULK) {
-        urb = calloc(1, sizeof(struct usbdevfs_urb));
-        if (!urb) return NULL;
+    if ((ep_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_BULK)
         urb->type = USBDEVFS_URB_TYPE_BULK;
-    }
-    else if ((ep_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_INT) {
-        urb = calloc(1, sizeof(struct usbdevfs_urb));
-        if (!urb) return NULL;
+    else if ((ep_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_INT)
         urb->type = USBDEVFS_URB_TYPE_INTERRUPT;
-    }
-    else if ((ep_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_ISOC) {//alloc max iso desc 10
-        if (ep_ssdesc->bMaxBurst > 0 && ep_ssdesc->wBytesPerInterval > 0) //usb3
-            wMaxPacketSize = ep_ssdesc->wBytesPerInterval;
-        else
-            wMaxPacketSize =  (ep_desc->wMaxPacketSize & 0x7FF)* ((ep_desc->wMaxPacketSize >> 11) + 1);
-        if (wMaxPacketSize > 3072)
-            num_iso_packets =  64;
-            // num_iso_packets =  96 / (wMaxPacketSize / 3072);
-        else if (wMaxPacketSize == 3072) num_iso_packets = 96;
-        else num_iso_packets = MAX_ISO_BUFFER_LENGTH /  wMaxPacketSize;
-       // if (num_iso_packets < 36) num_iso_packets = 36;
-urb = calloc(1, sizeof(struct usbdevfs_urb)+ (num_iso_packets * sizeof (struct usbdevfs_iso_packet_desc)));
-        if (!urb)
-            return NULL;
-        urb->type = USBDEVFS_URB_TYPE_ISO;
-        urb->flags   = USBDEVFS_URB_ISO_ASAP;
-    }
     else {
-        DD("Unsupported endpoint type %d", ep_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK);
+        D("Unsupported endpoint type %d", ep_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK);
         free(urb);
         return NULL;
     }
@@ -754,31 +709,10 @@ urb = calloc(1, sizeof(struct usbdevfs_urb)+ (num_iso_packets * sizeof (struct u
     }
 
     req->dev = dev;
-    if (urb->type == USBDEVFS_URB_TYPE_ISO) {
-        req->max_packet_size = wMaxPacketSize;
-        urb->number_of_packets = num_iso_packets;
-        for (int j = 0; j < num_iso_packets;  j++) {
-            urb->iso_frame_desc[j].length = req->max_packet_size;
-            urb->iso_frame_desc[j].actual_length = 0;
-            urb->iso_frame_desc[j].status = -1;
-        }
-    }
-    else
-        req->max_packet_size = __le16_to_cpu(ep_desc->wMaxPacketSize);
+    req->max_packet_size = __le16_to_cpu(ep_desc->wMaxPacketSize);
     req->private_data = urb;
     req->endpoint = urb->endpoint;
     urb->usercontext = req;
-
-
-    if (urb->type == USBDEVFS_URB_TYPE_ISO)
-    DD(" Dump urb=@%p type=%d endpoindt=0x%x status=%d flag=%d buffer_length=%d actual_length=%d start_frame =%d max_packet_size = %d buffer_length=%d num_iso_packets=%d " ,urb , urb->type ,
-        urb->endpoint,
-        urb->status,
-        urb->flags,
-        urb->buffer_length,
-        urb->actual_length,
-        urb->start_frame , req->max_packet_size , req->buffer_length , num_iso_packets);
-
 
     return req;
 }
@@ -786,7 +720,7 @@ urb = calloc(1, sizeof(struct usbdevfs_urb)+ (num_iso_packets * sizeof (struct u
 void usb_request_free(struct usb_request *req)
 {
     free(req->private_data);
-               free(req);
+    free(req);
 }
 
 int usb_request_queue(struct usb_request *req)
@@ -802,13 +736,6 @@ int usb_request_queue(struct usb_request *req)
         res = ioctl(req->dev->fd, USBDEVFS_SUBMITURB, urb);
     } while((res < 0) && (errno == EINTR));
 
-  // DD(" ---SubmitRequestUrb @%p " , urb);
-   if (urb->type == USBDEVFS_URB_TYPE_ISO && res != 0)
-        DD("iso usb_request_queue SUBMITURB buffer @%p buffer_length %d type =%d res = %d errno = %d \n", urb , urb->buffer_length ,  urb->type , res , errno );
-
-    // DD("ISO-mode sumit urd");
-    //if (urb->type == 0 )
-    // DD("type %d error res = %d errno = %d\n" , urb->type  , res , errno);
     return res;
 }
 
@@ -821,7 +748,7 @@ struct usb_request *usb_request_wait(struct usb_device *dev, int timeoutMillis)
         int res = poll(&p, 1, timeoutMillis);
 
         if (res != 1 || p.revents != POLLOUT) {
-            DD("[ poll - event %d, error %d]\n", p.revents, errno);
+            D("[ poll - event %d, error %d]\n", p.revents, errno);
             return NULL;
         }
     }
@@ -831,28 +758,16 @@ struct usb_request *usb_request_wait(struct usb_device *dev, int timeoutMillis)
     struct usbdevfs_urb *urb = NULL;
     int res = TEMP_FAILURE_RETRY(ioctl(dev->fd, timeoutMillis == -1 ? USBDEVFS_REAPURB :
                                                 USBDEVFS_REAPURBNDELAY, &urb));
-    if (res < 0)
-        DD("%s returned %d\n", timeoutMillis == -1 ? "USBDEVFS_REAPURB" : "USBDEVFS_REAPURBNDELAY", res);
+    D("%s returned %d\n", timeoutMillis == -1 ? "USBDEVFS_REAPURB" : "USBDEVFS_REAPURBNDELAY", res);
 
     if (res < 0) {
-        DD("[ reap urb - error %d]\n", errno);
+        D("[ reap urb - error %d]\n", errno);
         return NULL;
     } else {
-       if (urb->status !=0)
-            DD("[ urb @%p status = %d, actual = %d number_of_packets %d ]  \n", urb, urb->status, urb->actual_length , urb->number_of_packets  );
-      //  for (int i =0; i < urb->number_of_packets; i++ ) {
-      //      DD("%d status = %d length = %d actual_length = %d\n", i, urb->iso_frame_desc[i].status,
-      //         urb->iso_frame_desc[i].length, urb->iso_frame_desc[i].actual_length);
-       // }
+        D("[ urb @%p status = %d, actual = %d ]\n", urb, urb->status, urb->actual_length);
 
         struct usb_request *req = (struct usb_request*)urb->usercontext;
         req->actual_length = urb->actual_length;
-        req->private_data = urb;
-        /*if (urb->actual_length > 0 && urb->buffer)
-        {
-            uint8_t* pbuf = (uint8_t*) urb->buffer;
-            DD(" 0x%02x, 0x%02x " ,  pbuf[0] , pbuf[1]);
-        } */
 
         return req;
     }
@@ -861,6 +776,5 @@ struct usb_request *usb_request_wait(struct usb_device *dev, int timeoutMillis)
 int usb_request_cancel(struct usb_request *req)
 {
     struct usbdevfs_urb *urb = ((struct usbdevfs_urb*)req->private_data);
-    DD(" ---DiscardRequestUrb @%p " , urb);
     return ioctl(req->dev->fd, USBDEVFS_DISCARDURB, urb);
 }

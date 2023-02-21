@@ -95,15 +95,6 @@ namespace rs2
             error::handle(e);
         }
 
-        uint32_t get_al3d_error()
-        {
-            rs2_error* e = nullptr;
-
-            auto result = rs2_get_al3d_error(_dev.get(), &e);
-            error::handle(e);
-			return result;
-        }
-
         device& operator=(const std::shared_ptr<rs2_device> dev)
         {
             _dev.reset();
@@ -544,26 +535,6 @@ namespace rs2
             rs2_error* e = nullptr;
             std::shared_ptr<const rs2_raw_data_buffer> list(
                 rs2_get_calibration_table(_dev.get(), &e),
-                rs2_delete_raw_data);
-            error::handle(e);
-
-            auto size = rs2_get_raw_data_size(list.get(), &e);
-            error::handle(e);
-
-            auto start = rs2_get_raw_data(list.get(), &e);
-
-            results.insert(results.begin(), start, start + size);
-
-            return results;
-        }
-        //al3d
-        calibration_table get_calibration_table_by_id(int table_id)
-        {
-            std::vector<uint8_t> results;
-
-            rs2_error* e = nullptr;
-            std::shared_ptr<const rs2_raw_data_buffer> list(
-                rs2_get_calibration_table_by_id(_dev.get(), &e, table_id),
                 rs2_delete_raw_data);
             error::handle(e);
 

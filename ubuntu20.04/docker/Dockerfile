@@ -1,7 +1,5 @@
 FROM nvidia/cuda:11.3.0-cudnn8-devel-ubuntu20.04
 
-
-
 ############################## SYSTEM PARAMETERS ##############################
 ## Base arguments
 ARG USER=root
@@ -24,52 +22,68 @@ RUN groupadd --gid ${GID} ${GROUP} \
   && echo "${USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${USER}" \
   && chmod 0440 "/etc/sudoers.d/${USER}"
 
-
 ## Replace apt urls
 # Taiwan
 # RUN sed -i 's@archive.ubuntu.com@tw.archive.ubuntu.com@g' /etc/apt/sources.list
 # TKU
 RUN sed -i 's@archive.ubuntu.com@ftp.tku.edu.tw/@g' /etc/apt/sources.list
 
-## Timezone (ROS)
+## Time zone
 ENV TIME_ZONE=Asia/Taipei
 RUN ln -snf /usr/share/zoneinfo/$TIME_ZONE /etc/localtime \
   && echo $TIME_ZONE > /etc/timezone
 
 ############################### INSTALL & SETUP ###############################
-RUN apt-key adv --fetch-keys
+# RUN apt-key adv --fetch-keys
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  sudo htop git wget curl \
+  # basic tools
+  sudo \
+  htop \
+  git \
+  wget \
+  curl \
   # Shell
-  byobu zsh \
+  byobu \
+  zsh \
   terminator \
-  dbus-x11 libglvnd0 libgl1 libglx0 libegl1 libxext6 libx11-6 libxtst6 libinih-dev\
-  # Editing tools
-  nano vim \
-  gnome-terminal libcanberra-gtk-module libcanberra-gtk3-module \
+  # basic dependent packages
+  dbus-x11 \
+  libglvnd0 \
+  libgl1 \
+  libglx0 \
+  libegl1 \
+  libxext6 \
+  libx11-6 \
+  libxtst6 \
+  libinih-dev\
+  build-essential \
+  # editor
+  nano \
+  vim \
+  # ???
+  gnome-terminal \
+  libcanberra-gtk-module \
+  libcanberra-gtk3-module \
   software-properties-common \
   # python
-  python3-pip python3-dev python3-setuptools
-  
+  python3-pip \
+  python3-dev \
+  python3-setuptools
+
 
 ############################### INSTALL ROS ###############################
-RUN sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' \
-  sudo apt install -y curl \
-  sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
-  sudo apt update \
-  sudo apt install -y --no-install-recommends ros-noetic-desktop-full \
-  # echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc \
-  # source ~/.bashrc \
-  sudo apt install -y python3-rosdep \
-  sudo apt install -y python3-rosinstall \
-  sudo apt install -y python3-rosinstall-generator \
-  sudo apt install -y python3-wstool \
-  sudo apt install -y build-essential \
-  sudo apt install python3-rosdep \
-  sudo rosdep init \
-  rosdep update
-
-
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" \
+  > /etc/apt/sources.list.d/ros-latest.list' \
+  && apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key \ C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 \
+  && apt update \
+  && apt install -y --no-install-recommends ros-noetic-desktop-full \
+    python3-rosdep \
+    python3-rosinstall \
+    python3-rosinstall-generator \
+    python3-wstool \
+    python3-rosdep \
+  && rosdep init \
+  && rosdep update
 
 WORKDIR /home/${USER}/.tmp
 

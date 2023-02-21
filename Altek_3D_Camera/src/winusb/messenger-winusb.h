@@ -32,7 +32,6 @@ namespace librealsense
             virtual usb_status submit_request(const rs_usb_request& request) override;
             virtual usb_status cancel_request(const rs_usb_request& request) override;
             virtual rs_usb_request create_request(rs_usb_endpoint endpoint) override;
-            virtual usb_status set_interface(unsigned int inf ,unsigned int alt_setting) override;
 
         private:
             std::shared_ptr<dispatcher> get_dispatcher(uint8_t endpoint);

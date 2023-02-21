@@ -34,7 +34,6 @@ namespace librealsense
         const uint16_t RS400_IMU_PID        = 0x0af2; // IMU
         const uint16_t RS420_PID            = 0x0af6; // PWG
         const uint16_t AL3D_PID             = 0x99aa; // AL3D //for al3d
-        const uint16_t AL3Di_PID            = 0x99bb; // AL3Di //for al3di
         const uint16_t RS420_MM_PID         = 0x0afe; // PWGT
         const uint16_t RS410_MM_PID         = 0x0aff; // ASRT
         const uint16_t RS400_MM_PID         = 0x0b00; // PSR
@@ -63,8 +62,6 @@ namespace librealsense
         const uint8_t DS5_ENABLE_AUTO_EXPOSURE            = 0xB;
         const uint8_t DS5_LED_PWR                         = 0xE;
         const uint8_t DS5_THERMAL_COMPENSATION            = 0xF;
-        const uint8_t AL3D_Sync_PTS_Time                  = 0x10;
-        const uint8_t AL3D_PTS_Time_Diff                  = 0x11;
 
         // Devices supported by the current version
         static const std::set<std::uint16_t> rs400_sku_pid = {
@@ -77,7 +74,6 @@ namespace librealsense
             ds::RS400_IMU_PID,
             ds::RS420_PID,
             ds::AL3D_PID, //for al3d
-            ds::AL3Di_PID, //for al3d
             ds::RS420_MM_PID,
             ds::RS410_MM_PID,
             ds::RS400_MM_PID,
@@ -113,7 +109,6 @@ namespace librealsense
             ds::RS430I_PID,
             ds::RS465_PID,
             ds::RS455_PID,
-            ds::AL3Di_PID,
         };
 
         static const std::set<std::uint16_t> hid_bmi_055_pid = {
@@ -146,7 +141,6 @@ namespace librealsense
             { RS400_IMU_PID,        "Intel RealSense IMU" },
             { RS420_PID,            "Intel RealSense D420"}, 
             { AL3D_PID,             "Altek 3D UVC Camera"}, // for al3d
-            { AL3Di_PID,            "Altek 3Di UVC Camera"}, // for al3di
             { RS420_MM_PID,         "Intel RealSense D420 with Tracking Module"},
             { RS410_MM_PID,         "Intel RealSense D410 with Tracking Module"},
             { RS400_MM_PID,         "Intel RealSense D400 with Tracking Module"},
@@ -670,8 +664,7 @@ namespace librealsense
             active_projector                = 170,
             rgb_sensor                      = 174,
             imu_sensor                      = 178,
-            motion_module_fw_version_offset = 212,
-            al3d_fw_version_offset = 256, // for al3d fw version
+            motion_module_fw_version_offset = 212
         };
 
         const uint8_t I2C_IMU_BMI055_ID_ACC = 0xfa;
@@ -751,7 +744,6 @@ namespace librealsense
             {RS400_IMU_PID, "5.8.15.0"},
             {RS420_PID, "5.8.15.0"},
 			{AL3D_PID, "5.8.15.0"}, //for al3d
-			{AL3Di_PID, "5.8.15.0"}, //for al3di
             {RS420_MM_PID, "5.8.15.0"},
             {RS410_MM_PID, "5.8.15.0"},
             {RS400_MM_PID, "5.8.15.0" },

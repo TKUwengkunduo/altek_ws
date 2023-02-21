@@ -250,7 +250,7 @@ int usb_device_reset(struct usb_device *device);
 
 /* Creates a new usb_request. */
 struct usb_request *usb_request_new(struct usb_device *dev,
-                                    const struct usb_endpoint_descriptor *ep_desc , const struct  usb_ss_ep_comp_descriptor  *ep_ssdesc);
+                                    const struct usb_endpoint_descriptor *ep_desc);
 
 /* Releases all resources associated with the request */
 void usb_request_free(struct usb_request *req);

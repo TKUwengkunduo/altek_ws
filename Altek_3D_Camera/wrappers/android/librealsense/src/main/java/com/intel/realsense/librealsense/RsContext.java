@@ -24,8 +24,7 @@ public class RsContext extends LrsClass{
     }
 
     public DeviceList queryDevices() {
-        //return queryDevices(ProductLine.ANY_INTEL);
-        return queryDevices(ProductLine.ANY);
+        return queryDevices(ProductLine.ANY_INTEL);
     }
 
     public DeviceList queryDevices(ProductLine productLine) {

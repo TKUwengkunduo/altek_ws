@@ -852,10 +852,7 @@ namespace rs2
         std::string selected_file_preset;
 
         std::vector<std::shared_ptr<notification_model>> related_notifications;
-        //al3di
-		bool al3di_disable_rgb = false;       
-		bool al3di_is_rgb_streaming = false;  
-		uint32_t get_al3d_error();
+
     private:
         // This class is in charge of camera accuracy health window parameters,
         // Needed as a member for reseting the window memory on device disconnection.
@@ -905,8 +902,6 @@ namespace rs2
         std::shared_ptr<updates_model> _updates;
         std::shared_ptr<sw_update::dev_updates_profile::update_profile >_updates_profile;
         calibration_model _calib_model;
-		//al3di
-		uint32_t al3d_error = 0;
     };
 
     class viewer_model;

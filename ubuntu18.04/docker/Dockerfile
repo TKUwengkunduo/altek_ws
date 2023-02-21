@@ -48,6 +48,7 @@ RUN ln -snf /usr/share/zoneinfo/$TIME_ZONE /etc/localtime \
 RUN apt-key adv --fetch-keys
 RUN apt-get update && apt-get install -y --no-install-recommends \
   sudo htop git wget curl \
+  git \
   # Shell
   byobu zsh \
   terminator \
@@ -80,17 +81,17 @@ RUN apt-get update && \
 
 
 ############################# INSTALL RealSense SDK2.0 ###############################
-RUN sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-  && sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE
-RUN sudo add-apt-repository -y "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
-RUN sudo apt-get install -y librealsense2-dkms \
-  librealsense2-utils \
-  librealsense2-dev \
-  librealsense2-dbg
+# RUN sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+#   && sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE
+# RUN sudo add-apt-repository -y "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
+# RUN sudo apt-get install -y librealsense2-dkms \
+#   librealsense2-utils \
+#   librealsense2-dev \
+#   librealsense2-dbg
 
 # Altek Camera
-RUN apt install -y ros-melodic-ddynamic-reconfigure \
-  ros-melodic-rgbd-launch
+# RUN apt install -y ros-melodic-ddynamic-reconfigure \
+#   ros-melodic-rgbd-launch
 
 
 
