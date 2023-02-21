@@ -74,7 +74,7 @@ CC=gcc
 endif
 
 CPP=g++ -std=c++11
-NVCC=/usr/local/cuda-12.0/bin/nvcc
+NVCC=nvcc
 OPTS=-Ofast
 LDFLAGS= -lm -pthread
 COMMON= -Iinclude/ -I3rdparty/stb/include
